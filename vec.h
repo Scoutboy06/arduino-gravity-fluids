@@ -4,9 +4,7 @@ class Vec {
   float y;
   float z;
 
-  Vec() {}
-  Vec(float x, float y, float z = 0.0) : x(x), y(y) {}
-  Vec(const Vec& rhs){};
+  Vec(float x, float y, float z = 0.0) : x(x), y(y), z(z) {}
 
   static Vec fromAngle(float angle, float length = 1) {
     float x = cos(angle) * length;
@@ -24,19 +22,42 @@ class Vec {
                length * sinTheta * cosPhi);
   }
 
-  void set(float x, float y) {
+  Vec copy(Vec& other) { return Vec(other.x, other.y, other.z); }
+
+  void set(float x, float y, float z = 0.0) {
     this->x = x;
     this->y = y;
+    this->z = z;
   }
 
-  void add(float x, float y) {
+  void set(Vec& other) {
+    this->x = other.x;
+    this->y = other.y;
+    this->z = other.z;
+  }
+
+  void add(float x, float y, float z = 0.0) {
     this->x += x;
     this->y += y;
+    this->z += z;
   }
 
-  void sub(float x, float y) {
+  void add(Vec& other) {
+    this->x += other.x;
+    this->y += other.y;
+    this->z += other.z;
+  }
+
+  void sub(float x, float y, float z = 0.0) {
     this->x -= x;
     this->y -= y;
+    this->z -= z;
+  }
+
+  void sub(Vec& other) {
+    this->x -= other.x;
+    this->y -= other.y;
+    this->z -= other.z;
   }
 
   void mult(float scalar) {
@@ -54,7 +75,7 @@ class Vec {
   }
 
   float magSq() {
-    return this->x * this->x + this->y * this->y + this->z * this->x;
+    return this->x * this->x + this->y * this->y + this->z * this->z;
   }
 
   float dist(float x, float y, float z = 0.0) {
