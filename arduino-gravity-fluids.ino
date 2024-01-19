@@ -4,6 +4,7 @@
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
+#include "particle.h"
 #include "vec.h"
 
 // -------- OLED Screen -------- //
@@ -21,9 +22,9 @@ Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
 
 Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 
-float x_acc;
-float y_acc;
-float z_acc;
+// -------- Fluid simulation -------- //
+
+float timeStep = 1 / 60;
 
 // -------- Setup -------- //
 
@@ -79,8 +80,6 @@ void loop() {
   oled.clearDisplay();
   oled.fillCircle(ballPos.x, ballPos.y, r, WHITE);
   oled.display();
-
-  // delay(500);
 }
 
 Vec readAccelerometer() {

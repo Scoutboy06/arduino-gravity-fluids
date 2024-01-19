@@ -4,15 +4,16 @@ class Vec {
   float y;
   float z;
 
+  Vec() : x(0.0), y(0.0), z(0.0) {}
   Vec(float x, float y, float z = 0.0) : x(x), y(y), z(z) {}
 
-  static Vec fromAngle(float angle, float length = 1) {
+  static Vec fromAngle(float angle, float length = 1.0) {
     float x = cos(angle) * length;
     float y = sin(angle) * length;
     return Vec(x, y);
   }
 
-  static Vec fromAngles(float theta, float phi, float length = 1) {
+  static Vec fromAngles(float theta, float phi, float length = 1.0) {
     float sinTheta = sin(theta);
     float cosTheta = cos(theta);
     float sinPhi = sin(phi);
@@ -22,7 +23,7 @@ class Vec {
                length * sinTheta * cosPhi);
   }
 
-  Vec copy(Vec& other) { return Vec(other.x, other.y, other.z); }
+  Vec copy() { return Vec(this->x, this->y, this->z); }
 
   void set(float x, float y, float z = 0.0) {
     this->x = x;
