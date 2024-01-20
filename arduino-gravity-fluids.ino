@@ -29,6 +29,7 @@ float timeStep = 1 / 60;
 // -------- Setup -------- //
 
 Vec ballPos(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+Vec ballVel(0, 0);
 
 void setup() {
   Serial.begin(115200);
@@ -62,19 +63,24 @@ int halfR = r / 2;
 
 void loop() {
   Vec gravity = readAccelerometer();
-  gravity.mult(0.5);
-  ballPos.add(gravity);
+  gravity.mult(0.1);
+  ballVel.add(gravity);
+  ballPos.add(ballVel);
 
   if (ballPos.x - halfR < 0) {
     ballPos.x = halfR;
+    ballVel.x = 0;
   } else if (ballPos.x + halfR > SCREEN_WIDTH) {
     ballPos.x = SCREEN_WIDTH - halfR;
+    ballVel.x = 0;
   }
 
   if (ballPos.y - halfR < 0) {
     ballPos.y = halfR;
+    ballVel.y = 0;
   } else if (ballPos.y + halfR > SCREEN_HEIGHT) {
     ballPos.y = SCREEN_HEIGHT - halfR;
+    ballVel.y = 0;
   }
 
   oled.clearDisplay();
