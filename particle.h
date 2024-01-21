@@ -9,9 +9,9 @@ class Particle {
   Vec vel;
   Vec acc;
   float radius;
+  unsigned int index;
 
   Particle() {}
-
   Particle(float x, float y) {
     this->pos = Vec(x, y);
     this->prevPos = Vec(x, y);
