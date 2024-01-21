@@ -1,5 +1,6 @@
 #pragma once
 
+#include "neighbor_manager.h"
 #include "vec.h"
 
 class Particle {
@@ -22,4 +23,8 @@ class Particle {
   float dist(Particle& other) { return this->pos.dist(other.pos); }
 
   float distSq(Particle& other) { return this->pos.distSq(other.pos); }
+
+  Particle** neighbors() {
+    return NeighborManager::GetInstance().getNeighborsOf(this);
+  }
 };

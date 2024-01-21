@@ -1,3 +1,40 @@
+/*
+
+  /$$$$$$                                /$$   /$$
+ /$$__  $$                              |__/  | $$
+| $$  \__/  /$$$$$$  /$$$$$$  /$$    /$$ /$$ /$$$$$$   /$$   /$$
+| $$ /$$$$ /$$__  $$|____  $$|  $$  /$$/| $$|_  $$_/  | $$  | $$
+| $$|_  $$| $$  \__/ /$$$$$$$ \  $$/$$/ | $$  | $$    | $$  | $$
+| $$  \ $$| $$      /$$__  $$  \  $$$/  | $$  | $$ /$$| $$  | $$
+|  $$$$$$/| $$     |  $$$$$$$   \  $/   | $$  |  $$$$/|  $$$$$$$
+ \______/ |__/      \_______/    \_/    |__/   \___/   \____  $$
+                                                       /$$  | $$
+                                                      |  $$$$$$/
+                                                       \______/
+ /$$$$$$$$ /$$           /$$       /$$
+| $$_____/| $$          |__/      | $$
+| $$      | $$ /$$   /$$ /$$  /$$$$$$$  /$$$$$$$
+| $$$$$   | $$| $$  | $$| $$ /$$__  $$ /$$_____/
+| $$__/   | $$| $$  | $$| $$| $$  | $$|  $$$$$$
+| $$      | $$| $$  | $$| $$| $$  | $$ \____  $$
+| $$      | $$|  $$$$$$/| $$|  $$$$$$$ /$$$$$$$/
+|__/      |__/ \______/ |__/ \_______/|_______/
+
+
+A fluid simulation that responds to motion (gravity).
+
+Resources:
+
+  [Mån13] Daniel Månsson. Interactive 2D Particle-based Fluid Simulation for
+  Mobile Devices. Bachelor's Thesis, KTH, 2013
+
+  [GHJV95] Erich Gamma, Richard Helm, Ralph Johnsson, John Vlissides. Design
+  Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley, 1995.
+
+*/
+
+#pragma once
+
 #include <Adafruit_ADXL345_U.h>
 #include <Adafruit_GFX.h>
 #include <Adafruit_SSD1306.h>
@@ -5,6 +42,7 @@
 #include <Wire.h>
 
 #include "particle.h"
+#include "particle_manager.h"
 #include "vec.h"
 
 // -------- OLED Screen -------- //
@@ -25,11 +63,21 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 // -------- Fluid simulation -------- //
 
 float timeStep = 1 / 60;
+#define NUM_PARTICLES 512
+
+// Variables described in [Mån13], 3.1.3, List 3
+
+const float radius = 1.0;  // Maximum distance particles effect each other.
+const float collisionRadius =
+    1.0;                // The distance from a wall that counts as a collision.
+const float p_0 = 1.0;  // Rest density
+const float sigma = 1.0;  // The viscosity's linear dependence on the velocity
+const float beta = 1.0;  // The viscosity's quadratic dependence on the velocity
+const float k = 1.0;     // Stiffness used in DoubleDensityRelaxation
+const float k_near = 1.0;  // Near-stiffness used in DoubleDensityRelaxation
+Vec gravity;               // The global gravity acceleration
 
 // -------- Setup -------- //
-
-Vec ballPos(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-Vec ballVel(0, 0);
 
 void setup() {
   Serial.begin(115200);
@@ -49,42 +97,16 @@ void setup() {
       ;
   }
 
-  oled.clearDisplay();
-  oled.setCursor(20, 20);
-  oled.setTextColor(WHITE);
-  oled.print("Hello there!");
-  oled.display();
-
   pinMode(LED_BUILTIN, OUTPUT);
 }
 
-int r = 4;
-int halfR = r / 2;
-
 void loop() {
-  Vec gravity = readAccelerometer();
-  gravity.mult(0.1);
-  ballVel.add(gravity);
-  ballPos.add(ballVel);
-
-  if (ballPos.x - halfR < 0) {
-    ballPos.x = halfR;
-    ballVel.x = 0;
-  } else if (ballPos.x + halfR > SCREEN_WIDTH) {
-    ballPos.x = SCREEN_WIDTH - halfR;
-    ballVel.x = 0;
-  }
-
-  if (ballPos.y - halfR < 0) {
-    ballPos.y = halfR;
-    ballVel.y = 0;
-  } else if (ballPos.y + halfR > SCREEN_HEIGHT) {
-    ballPos.y = SCREEN_HEIGHT - halfR;
-    ballVel.y = 0;
-  }
-
+  gravity = readAccelerometer();
   oled.clearDisplay();
-  oled.fillCircle(ballPos.x, ballPos.y, r, WHITE);
+
+  ParticleManager::GetInstance().updateParticles(timeStep);
+  ParticleManager::GetInstance().renderParticles();
+
   oled.display();
 }
 
