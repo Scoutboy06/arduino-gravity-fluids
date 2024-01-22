@@ -1,177 +1,236 @@
 #pragma once
 
-class Vec {
+class Vector2 {
  public:
   float x;
   float y;
-  float z;
 
   /**
-   * @brief Default constructor that initializes x, y, and z to 0.0
+   * @brief Default constructor that initializes x and y to 0.0
    */
-  Vec() : x(0.0), y(0.0), z(0.0) {}
+  Vector2() : x(0.0f), y(0.0f) {}
 
   /**
-   * @brief Constructor that initializes x, y, and z to given values
+   * @brief Constructor that initializes x and y to given values
    * @param x The x-corrdinate
    * @param y The y-corrdinate
-   * @param z The z-corrdinate
    */
-  Vec(float x, float y, float z = 0.0) : x(x), y(y), z(z) {}
+  Vector2(float x, float y) : x(x), y(y) {}
 
   /**
-   * @brief Creates a Vec object from an angle and length
+   * @brief Creates a Vector2 object from an angle and length
    * @param angle The angle in radians
    * @param length The length of the vector (optional, defaults to 1.0)
-   * @return A new Vec object with x, y and z coordinates calculated from the
-   * angle and length
+   * @return A new Vector2 object with x and y coordinates calculated from
+   * the angle and length
    */
-  static Vec fromAngle(float angle, float length = 1.0) {
+  static Vector2 fromAngle(float angle, float length = 1.0) {
     float x = cos(angle) * length;
     float y = sin(angle) * length;
-    return Vec(x, y);
+    return Vector2(x, y);
   }
 
   /**
-   * @brief Creates a Vec object from two angles and length
-   * @param theta The theta angle in radians
-   * @param phi The phi angle in radians
-   * @param length The length of the vector (optional, defaults to 1.0)
-   * @return A new Vec object with x, y, and z coordinates calculated from the
-   * angles and length
+   * @brief Returns a copy of the Vector2 object
    */
-  static Vec fromAngles(float theta, float phi, float length = 1.0) {
-    float sinTheta = sin(theta);
-    float cosTheta = cos(theta);
-    float sinPhi = sin(phi);
-    float cosPhi = cos(phi);
-
-    return Vec(length * sinTheta * sinPhi, -length * cosTheta,
-               length * sinTheta * cosPhi);
-  }
+  Vector2 copy() { return Vector2(this->x, this->y); }
 
   /**
-   * Returns a copy of the Vec object
+   * @brief Adds to a vector's x and y components using separate numbers
    */
-  Vec copy() { return Vec(this->x, this->y, this->z); }
-
-  /**
-   * Sets the x, y, and z components of the vector using separate numbers
-   */
-  void set(float x, float y, float z = 0.0) {
-    this->x = x;
-    this->y = y;
-    this->z = z;
-  }
-
-  /**
-   * Sets the x, y, and z components of the vector using another Vec object
-   */
-  void set(Vec& other) {
-    this->x = other.x;
-    this->y = other.y;
-    this->z = other.z;
-  }
-
-  /**
-   * Adds to a vector's x, y, and z components using separate numbers
-   */
-  void add(float x, float y, float z = 0.0) {
+  void add(float x, float y) {
     this->x += x;
     this->y += y;
-    this->z += z;
   }
 
   /**
-   * Adds to a vector's x, y, and z components using another `Vec` object
-   * @param other The Vec that will be added from
+   * @brief Adds the x and y components of the vector using another Vec object
+   * @param other The Vector2 object whose coordinates will be added onto this
+   * Vector2
    */
-  void add(Vec& other) {
-    this->x += other.x;
-    this->y += other.y;
-    this->z += other.z;
+  void add(const Vector2& other) {
+    x += other.x;
+    y += other.y;
   }
 
   /**
-   * @brief Overloads the `+` operator to add two Vec objects
-   * @param rhs The Vec object on the right-hand side of the `+` operator
-   * @return A new Vec object that is the sum of this Vec and `rhs`
+   * @brief Overloads the `+` operator to add two Vector2 objects
+   * @param rhs The Vector2 object on the right-hand side of the `+` operator
+   * @return A new Vector2 object that is the sum of this Vector2 and `rhs`
    */
-  Vec operator+(const Vec& rhs) const {
-    return Vec(this->x + rhs.x, this->y + rhs.y, this->z + rhs.z);
+  Vector2 operator+(const Vector2& rhs) const {
+    return Vector2(this->x + rhs.x, this->y + rhs.y);
   }
 
   /**
-   * @brief Overloads the `+=` operator to add a Vec object to this Vec
-   * @param rhs The Vec object on the right-hand side of the `+=` operator
-   * @return A reference to this Vec after `rhs` has been added to it
+   * @brief Overloads the `+=` operator to add a Vector2 object to this Vector2
+   * @param rhs The Vector2 object on the right-hand side of the `+=` operator
+   * @return A reference to this Vector2 after `rhs` has been added to it
    */
-  Vec& operator+=(const Vec& other) {
-    this->x += other.x;
-    this->y += other.y;
-    this->z += other.z;
+  Vector2& operator+=(const Vector2& other) {
+    x += other.x;
+    y += other.y;
     return *this;
   }
 
-  void sub(float x, float y, float z = 0.0) {
+  /**
+   * @brief Subtracts from a vector's x and y components using separate numbers
+   */
+  void sub(float x, float y) {
     this->x -= x;
     this->y -= y;
-    this->z -= z;
-  }
-
-  void sub(Vec& other) {
-    this->x -= other.x;
-    this->y -= other.y;
-    this->z -= other.z;
   }
 
   /**
-   * @brief Overloads the `-` operator to subtract a Vec object from this Vec
-   * @param rhs The Vec object on the right-hand side of the - operator
-   * @return A new Vec object that is the difference of this Vec and `rhs`
+   * @brief Subrracts the x and y components of the vector using another Vec
+   * object
+   * @param other The Vector2 object whose coordinates will be subtracted from
+   * this Vector2
    */
-  Vec operator-(const Vec& rhs) const {
-    return Vec(this->x - rhs.x, this->y - rhs.y, this->z - rhs.z);
+  void sub(const Vector2& other) {
+    x -= other.x;
+    y -= other.y;
   }
 
+  /**
+   * @brief Overloads the `-` operator to subtract a Vector2 object from this
+   * Vector2
+   * @param rhs The Vector2 object on the right-hand side of the `-` operator
+   * @return A new Vector2 object that is the difference of this Vector2 and
+   * `rhs`
+   */
+  Vector2 operator-(const Vector2& rhs) const {
+    return Vector2(x - rhs.x, y - rhs.y);
+  }
+
+  /**
+   * @brief Overloads the `-=` operator to subtract a Vector2 object to this
+   * Vector2
+   * @param rhs The Vector2 object on the right-hand side of the `-=` operator
+   * @return A reference to this Vector2 after `rhs` has been subtracted from it
+   */
+  Vector2& operator-=(const Vector2& rhs) {
+    x -= rhs.x;
+    y -= rhs.y;
+    return *this;
+  }
+
+  /**
+   * @brief Scales a vector using a scalar
+   * @param scalar The scalar to scale the vector with
+   */
   void mult(float scalar) {
-    this->x *= scalar;
-    this->y *= scalar;
+    x *= scalar;
+    y *= scalar;
   }
 
+  /**
+   * @brief Overloads the `*` operator to dot multiply a Vector2 object with
+   * this Vector2
+   * @param rhs The Vector2 object on the right-hand side of the `*` operator.
+   * @return A new Vector2 object that is the dot product of the Vector2 and
+   * `rhs`
+   */
+  float operator*(const Vector2& rhs) const { return x * rhs.x + y * rhs.y; }
+
+  /**
+   * @brief Overloads the `*` operator to scale a Vector2 object using a scalar
+   * @param scalar The scalar on the right-hand side of the `*` operator.
+   * @return A new Vector2 object that is a scaled version of the Vector2 object
+   * on the left-hand side of the `*` operator.
+   */
+  Vector2 operator*(const float scalar) const {
+    return Vector2(x * scalar, y * scalar);
+  }
+
+  /**
+   * @brief Overloads the `*` operator to scale a Vector2 object using a scalar
+   * @param scalar The scalar on the right-hand side of the `*` operator.
+   * @return A new Vector2 object that is the scaled Vector2 object and
+   */
+  friend Vector2 operator*(float scalar, const Vector2& v) {
+    return Vector2(v.x * scalar, v.y * scalar);
+  }
+
+  /**
+   * @brief Overloads the `*=` operator to scale a Vector2 object
+   * @param scalar The scalar to scale this vector with
+   */
+  Vector2& operator*=(const float scalar) {
+    x *= scalar;
+    y *= scalar;
+    return *this;
+  }
+
+  /**
+   * @brief Scales a vector by dividing using a scalar
+   * @param scalar The scalar to scale the vector with
+   */
   void div(float scalar) {
-    this->x /= scalar;
-    this->y /= scalar;
+    x /= scalar;
+    y /= scalar;
   }
 
-  float mag() {
-    return sqrt(this->x * this->x + this->y * this->y + this->z * this->z);
+  /**
+   * @brief Overloads the `/=` operator to scale a Vector2 object
+   * @param scalar The scalar to scale this vector with
+   */
+  Vector2& operator/=(const float scalar) {
+    x /= scalar;
+    y /= scalar;
+    return *this;
   }
 
-  float magSq() {
-    return this->x * this->x + this->y * this->y + this->z * this->z;
-  }
+  /**
+   * @brief Calculates the vector's magnitude
+   * @return The vector's magnitude
+   */
+  float mag() { return sqrt(magSq()); }
 
-  float dist(float x, float y, float z = 0.0) {
-    return sqrt(this->distSq(x, y, z));
-  }
+  /**
+   * @brief Calculates the vector's squared magnitude.
+   * @return The vector's squared magnitude.
+   */
+  float magSq() { return x * x + y * y; }
 
-  float dist(Vec& other) { return sqrt(this->distSq(other)); }
+  /**
+   * @brief Calculates the distance between this vector and the point (x, y)
+   * @return The distance between this vector and (x, y)
+   */
+  float dist(float x, float y) { return sqrt(distSq(x, y)); }
 
-  float distSq(float x, float y, float z = 0.0) {
+  /**
+   * @brief Calculates the distance between this vector and `other`
+   * @param other The vector to calculate the distance to
+   * @return The distance between this vector and (x, y)
+   */
+  float dist(Vector2& other) { return sqrt(distSq(other)); }
+
+  /**
+   * @brief Calculates the squared distance between this vector and the point
+   * (x, y)
+   * @return The squared distance between this vector and (x, y)
+   */
+  float distSq(float x, float y) {
     float dx = this->x - x;
     float dy = this->y - y;
-    float dz = this->z - z;
-    return dx * dx + dy * dy + dz * dz;
+    return dx * dx + dy * dy;
   }
 
-  float distSq(Vec& other) {
+  /**
+   * @brief Calculates the squared distance between this vector and `other`
+   * @param other The vector to calculate the squared distance to
+   * @return The squared distance between this vector and (x, y)
+   */
+  float distSq(Vector2& other) {
     float dx = this->x - other.x;
     float dy = this->y - other.y;
-    float dz = this->z - other.z;
-    return dx * dx + dy * dy + dz * dz;
+    return dx * dx + dy * dy;
   }
 
+  /**
+   * @brief Normalizes the vector
+   */
   void normalize() {
     float mag = this->mag();
 
@@ -180,6 +239,11 @@ class Vec {
     }
   }
 
+  /**
+   * @brief Limits the vector's magnitude. If the magnitude is smaller or equal
+   * to the maximum magnitude, it does nothing
+   * @param magMag The maximum magnitude
+   */
   void limit(float maxMag) {
     float magSq = this->magSq();
 
@@ -189,11 +253,23 @@ class Vec {
     }
   }
 
-  bool equals(float x, float y, float z = 0.0) {
-    return this->x == x && this->y == y && this->z == z;
-  }
+  /**
+   * @brief Checks if the vector's x- and y-coordinates matches the parameter
+   * values.
+   * @returns If the x- and y-coordinates match
+   */
+  bool equals(float x, float y) { return this->x == x && this->y == y; }
 
-  bool equals(Vec& other) {
-    return this->x == other.x && this->y == other.y && this->z == other.z;
-  }
+  /**
+   * @brief Checks if the two vectors are identical
+   * @returns If the two vectors are identical
+   */
+  bool equals(Vector2& other) { return x == other.x && y == other.y; }
+
+  /**
+   * @brief Overloads the `==` operator to check if the two vectors are
+   * identical
+   * @returns If the two vectors are identical
+   */
+  bool operator==(Vector2& rhs) { return this->equals(rhs); }
 };
