@@ -1,7 +1,7 @@
 #pragma once
 
-#include "arduino-gravity-fluids.ino"
 #include "distance_field.h"
+#include "globals.h"
 #include "grid.h"
 #include "neighbor_manager.h"
 #include "particle.h"
@@ -69,14 +69,26 @@ class ParticleManager {
   }
 
   /**
-   * Described in [Mån13], 3.1.3, Algorithm 3 - Applying viscosity
-   *
-   * Viscosity has the effect of smoothing the velocities of the
-   * particles. It is an impulse applied radially between neighboring particles.
+   * @brief Described in [Mån13], 3.1.3, Algorithm 3 - Applying viscosity.
+   * Viscosity has the effect of smoothing the velocities of the particles. It
+   * is an impulse applied radially between neighboring particles.
+   * @param timeStep The time between frames
    */
   void applyViscosity(float timeStep) {
     for (Particle p : _particles) {
       for (Particle* n : p.neighbors()) {
+        auto v_pn = n->pos - p.pos;
+        auto vel_inward = (p.vel - n->vel) * v_pn;
+
+        if (vel_inward > 0) {
+          auto length = v_pn.mag();
+          vel_inward /= length;
+          v_pn /= length;
+          auto q = length / radius;
+          auto I = 0.5 * timeStep * (1 - q) *
+                   (sigma * vel_inward + beta * pow(vel_inward, 2)) * v_pn;
+          p.vel -= I;
+        }
       }
     }
   }
