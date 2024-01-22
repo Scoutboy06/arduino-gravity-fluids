@@ -1,6 +1,7 @@
 #pragma once
 
-#include "arduino-gravity-fluids.ino"
+#include "globals.h"
+#include "list.h"
 #include "particle.h"
 
 #define INITIAL_CAPACITY 4
@@ -14,9 +15,10 @@ class NeighborManager {
 
   void addNeighbor(Particle* particle, Particle* neighbor) {
     int index = findParticle(particle);
+    _neighborData[index].neighbors.push(neighbor);
   }
 
-  Particle** getNeighborsOf(Particle* particle) {
+  List<Particle*> getNeighborsOf(Particle* particle) {
     int index = findParticle(particle);
     return _neighborData[index].neighbors;
   }
@@ -40,15 +42,13 @@ class NeighborManager {
 
   struct NeighborData {
     Particle* particle;
-    Particle** neighbors = new Particle*[INITIAL_CAPACITY];
-    uint32_t numNeighbors = 0;
-    uint32_t capacity = INITIAL_CAPACITY;
+    List<Particle*> neighbors = List<Particle*>();
   };
 
   NeighborData _neighborData[NUM_PARTICLES];
 
   int findParticle(Particle* particle) {
-    for (int i = 0; i < NUM_PARTICLES; ++i) {
+    for (int i = 0; i < NUM_PARTICLES; i++) {
       if (_neighborData[i].particle == particle) {
         return i;
       }
@@ -58,7 +58,7 @@ class NeighborManager {
   }
 
   int addParticle(Particle* particle) {
-    for (int i = 0; i < NUM_PARTICLES; ++i) {
+    for (int i = 0; i < NUM_PARTICLES; i++) {
       if (_neighborData[i].particle == nullptr) {
         _neighborData[i].particle = particle;
         return i;
