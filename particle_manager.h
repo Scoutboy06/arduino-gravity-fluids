@@ -40,21 +40,21 @@ class ParticleManager {
    * The main list of particles. This list is created and initialized in the
    * beginning of the simulation.
    */
-  Particle _particles[NUM_PARTICLES];
+  Particle particles[NUM_PARTICLES];
 
   /**
    * This component hashes the particles based on their position to a grid, to
    * allow faster neighbor search. Particles register their movement to this
    * component and the neighbor lists gets their data from this component
    */
-  Grid _grid;
+  Grid grid;
 
   /**
    * This component manages the world representation. The world is represented
    * by a distance field, where each data point contains the distance to the
    * closest edge and the normal away from that edge.
    */
-  DistanceField _distanceField;
+  DistanceField distanceField;
 
   /**
    * Described in [Mån13], 3.1.3, Algorithm 2 - Applying external forces.
@@ -63,7 +63,7 @@ class ParticleManager {
    * source of external force, `gravity`, which can be manipulated by the user.
    */
   void applyExternalForces(float timeStep) {
-    for (Particle p : _particles) {
+    for (Particle p : particles) {
       p.vel += gravity;
     }
   }
@@ -75,25 +75,39 @@ class ParticleManager {
    * @param timeStep The time between frames
    */
   void applyViscosity(float timeStep) {
-    for (Particle p : _particles) {
+    for (Particle p : particles) {
       for (Particle* n : p.neighbors()) {
-        auto v_pn = n->pos - p.pos;
-        auto vel_inward = (p.vel - n->vel) * v_pn;
+        Vector2 v_pn = n->pos - p.pos;
+        float vel_inward = (p.vel - n->vel) * v_pn;
 
         if (vel_inward > 0) {
-          auto length = v_pn.mag();
+          float length = v_pn.mag();
           vel_inward /= length;
           v_pn /= length;
-          auto q = length / radius;
-          auto I = 0.5 * timeStep * (1 - q) *
-                   (sigma * vel_inward + beta * pow(vel_inward, 2)) * v_pn;
+          float q = length / radius;
+          Vector2 I = 0.5 * timeStep * (1 - q) *
+                      (sigma * vel_inward + beta * pow(vel_inward, 2)) * v_pn;
           p.vel -= I;
         }
       }
     }
   }
 
-  void advanceParticles(float timeStep) {}
+  /**
+   * @brief Described in [Mån13], 3.1.3, Algorithm 4 - Advancing particles to
+   * predicted position.
+   *
+   * @note In the original paper, there is an error in Algorithm 4, line 4. It
+   * should be `p.pos ← p.pos + timeStep ∗ p.vel`, which has been corrected in
+   * the code.
+   */
+  void advanceParticles(float timeStep) {
+    for (Particle p : particles) {
+      p.prevPos = p.pos.copy();
+      p.pos += timeStep * p.vel;
+      grid.moveParticle(p);
+    }
+  }
 
   void updateNeighbors() {}
 

@@ -1,3 +1,8 @@
 #pragma once
 
-class Grid {};
+#include "particle.h"
+
+class Grid {
+ public:
+  void moveParticle(Particle& p) {}
+};
