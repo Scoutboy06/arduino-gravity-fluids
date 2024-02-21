@@ -23,7 +23,8 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 // -------- Fluid simulation -------- //
 
 float timeStep = 1 / 60;
-#define NUM_PARTICLES 512
+#define NUM_PARTICLES 30
+#define PARTICLE_RADIUS 3
 
 // Variables described in [Mån13], 3.1.3, List 3
 
@@ -36,3 +37,7 @@ const float beta = 1.0;  // The viscosity's quadratic dependence on the velocity
 const float k = 1.0;     // Stiffness used in DoubleDensityRelaxation
 const float k_near = 1.0;  // Near-stiffness used in DoubleDensityRelaxation
 Vector2 gravity;           // The global gravity acceleration
+
+// Variabled described in [Mån13], 3.1.3, below Algorithm 7
+float friction = 0.8;
+float collisionSoftness = 0.6;

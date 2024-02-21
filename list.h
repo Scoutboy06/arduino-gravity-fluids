@@ -16,30 +16,11 @@ class List {
   ~List() { delete[] _data; }
 
   /**
-   * @brief Creates a List object with a MINIMUM capacity of \a minCapacity
-   * @param minCapacity The minimum capacity of the List object
-   */
-  static List<T> withCapacity(size_t minCapacity) {
-    List<T> list;
-
-    uint32_t newCapacity = max(minCapacity, DEFAULT_CAPACITY);
-    while (newCapacity < minCapacity) {
-      newCapacity *= 2;
-    }
-
-    list._capacity = newCapacity;
-    list._data = new T[newCapacity];
-    list._length = 0;
-
-    return list;
-  }
-
-  /**
    * @brief Pushes a value onto the list. If the capacity of the list would
    * overflow, it re-allocates itself with double it's previous capactiy
    * @param value The value to push onto the back of the list
    */
-  void push(T value) {
+  void push(const T& value) {
     if (_length >= _capacity) {  // Re-allocate and resize array
       size_t newCapacity = _capacity * 2;
       T* newData = new T[newCapacity];
@@ -63,6 +44,9 @@ class List {
    */
   void clear() { _length = 0; }
 
+  /**
+   * @return The length of the List
+   */
   size_t len() const { return _length; }
 
   /**
@@ -89,5 +73,5 @@ class List {
   size_t _capacity;
   size_t _length;
 
-  void resize(size_t newCapacity) {}
+  size_t reserve(size_t size) {}
 };

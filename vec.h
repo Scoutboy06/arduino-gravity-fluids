@@ -35,6 +35,8 @@ class Vector2 {
    */
   Vector2 copy() { return Vector2(this->x, this->y); }
 
+  Vector2 perpendicularCCW() { return Vector2(-this->y, this->x); }
+
   /**
    * @brief Adds to a vector's x and y components using separate numbers
    */
@@ -169,6 +171,10 @@ class Vector2 {
   void div(float scalar) {
     x /= scalar;
     y /= scalar;
+  }
+
+  Vector2 operator/(const float scalar) {
+    return Vector2(this->x / scalar, this->y / scalar);
   }
 
   /**
