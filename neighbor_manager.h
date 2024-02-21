@@ -4,20 +4,8 @@
 #include "list.h"
 #include "particle.h"
 
-#define INITIAL_CAPACITY 4
-
 class NeighborManager {
  public:
-  struct NeighborData {
-    Particle* particle;
-    List<Particle*> neighbors;
-  };
-
-  static NeighborManager& GetInstance() {
-    static NeighborManager instance;
-    return instance;
-  }
-
   void addNeighbor(Particle& particle, Particle* neighbor) {
     _neighborData[particle.index].neighbors.push(neighbor);
   }
@@ -33,6 +21,11 @@ class NeighborManager {
   }
 
  private:
+  struct NeighborData {
+    Particle* particle;
+    List<Particle*> neighbors;
+  };
+
   NeighborData _neighborData[NUM_PARTICLES];
 
   int addParticle(Particle* particle) {
