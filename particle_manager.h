@@ -1,6 +1,6 @@
 #pragma once
 
-#include "distance_field.h"
+// #include "distance_field.h"
 #include "globals.h"
 #include "grid.h"
 #include "neighbor_manager.h"
@@ -59,11 +59,10 @@ class ParticleManager {
   Grid grid;
 
   /**
-   * @brief This component manages the world representation. The world is
-   * represented by a distance field, where each data point contains the
-   * distance to the closest edge and the normal away from that edge.
+   * @brief A component that manages the Neighbor search algorithm ([Mån13],
+   * ch. 3.2)
    */
-  DistanceField distanceField;
+  NeighborManager neighborManager;
 
   /**
    * @brief Described in [Mån13], 3.1.3, Algorithm 2 - Applying external forces.
@@ -85,7 +84,7 @@ class ParticleManager {
    */
   void applyViscosity(float timeStep) {
     for (Particle p : particles) {
-      for (Particle* n : NeighborManager::GetInstance().getNeighborsOf(p)) {
+      for (Particle* n : neighborManager.getNeighborsOf(p)) {
         Vector2 v_pn = n->pos - p.pos;
         float vel_inward = (p.vel - n->vel) * v_pn;
 
@@ -120,11 +119,11 @@ class ParticleManager {
 
   void updateNeighbors() {
     for (Particle p : particles) {
-      NeighborManager::GetInstance().clear();
+      neighborManager.clear();
 
       for (Particle* n : grid.possibleNeighbors(p)) {
         if ((p.pos - n->pos).magSq() < radius * radius) {
-          NeighborManager::GetInstance().addNeighbor(p, n);
+          neighborManager.addNeighbor(p, n);
         }
       }
     }
@@ -144,7 +143,7 @@ class ParticleManager {
       float p = 0.0;
       float p_near = 0.0;
 
-      for (Particle* n : NeighborManager::GetInstance().getNeighborsOf(par)) {
+      for (Particle* n : neighborManager.getNeighborsOf(par)) {
         float temp_n = (par.pos - n->pos).mag();
         float q = 1.0 - temp_n / radius;
         p = k * pow(q, 2);
@@ -155,7 +154,7 @@ class ParticleManager {
       float P_near = k_near * p_near;
       Vector2 delta;
 
-      for (Particle* n : NeighborManager::GetInstance().getNeighborsOf(par)) {
+      for (Particle* n : neighborManager.getNeighborsOf(par)) {
         float temp_n = (par.pos - n->pos).mag();
         float q = 1.0 - temp_n / radius;
         Vector2 v_pn = (par.pos - n->pos) / temp_n;
@@ -168,19 +167,43 @@ class ParticleManager {
     }
   }
 
+  /**
+   * @brief Originally described in [Mån13], 3.1.3, Algorithm 7 - Resolving
+   * collisions
+   *
+   * @note The original paper uses a distance field to resolve collisions using
+   * a normal vector from edges. For our use-case with only four edges, this can
+   * be simplified by instead creating a normal vector based on the distance to
+   * the closest two edges. We can thus "jump" directly to calculating the
+   * normal vector after defining the for loop, removing the need for a distance
+   * field.
+   *
+   * @note Also, in the original paper, the variable n on line 7 is not defined.
+   * In the implementation below, it is assumed that n.pos is the closes point
+   * on the closest edge.
+   */
   void resolveCollisions(float timeStep) {
     for (Particle p : particles) {
-      int index = distanceField.getIndex(p.pos);
+      // Horizontal edge collisions
+      if (p.pos.x < collisionRadius ||
+          p.pos.x > SCREEN_WIDTH - collisionRadius) {
+        // Reflect the particle's velocity and slightly move it away from the
+        // edge
+        p.vel.x *= -1;
+        p.pos.x = p.pos.x < collisionRadius ? collisionRadius
+                                            : SCREEN_WIDTH - collisionRadius;
+        p.pos.x -= collisionSoftness * p.vel.x * timeStep;
+      }
 
-      if (index != -1) {
-        float distance = distanceField.getDistance(index);
-
-        if (distance > -collisionRadius) {
-          // Vector2 v_pn = (p.pos - )
-          Vector2 normal = distanceField.getNormal(index);
-          Vector2 tangent = normal.perpendicularCCW();
-          tangent = timeStep * friction * (v_pn * tangent) * tangent;
-        }
+      // Vertical edge collisions
+      if (p.pos.y < collisionRadius ||
+          p.pos.y > SCREEN_HEIGHT - collisionRadius) {
+        // Reflect the particle's velocity and slightly move it away from the
+        // edge
+        p.vel.y *= -1;
+        p.pos.y = p.pos.y < collisionRadius ? collisionRadius
+                                            : SCREEN_HEIGHT - collisionRadius;
+        p.pos.y -= collisionSoftness * p.vel.y * timeStep;
       }
     }
   }
