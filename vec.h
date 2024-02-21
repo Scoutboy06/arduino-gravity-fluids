@@ -191,33 +191,33 @@ class Vector2 {
    * @brief Calculates the vector's magnitude
    * @return The vector's magnitude
    */
-  float mag() { return sqrt(magSq()); }
+  float mag() const { return sqrt(magSq()); }
 
   /**
    * @brief Calculates the vector's squared magnitude.
    * @return The vector's squared magnitude.
    */
-  float magSq() { return x * x + y * y; }
+  float magSq() const { return x * x + y * y; }
 
   /**
    * @brief Calculates the distance between this vector and the point (x, y)
    * @return The distance between this vector and (x, y)
    */
-  float dist(float x, float y) { return sqrt(distSq(x, y)); }
+  float dist(float x, float y) const { return sqrt(distSq(x, y)); }
 
   /**
    * @brief Calculates the distance between this vector and `other`
    * @param other The vector to calculate the distance to
    * @return The distance between this vector and (x, y)
    */
-  float dist(Vector2& other) { return sqrt(distSq(other)); }
+  float dist(const Vector2& other) const { return sqrt(distSq(other)); }
 
   /**
    * @brief Calculates the squared distance between this vector and the point
    * (x, y)
    * @return The squared distance between this vector and (x, y)
    */
-  float distSq(float x, float y) {
+  float distSq(float x, float y) const {
     float dx = this->x - x;
     float dy = this->y - y;
     return dx * dx + dy * dy;
@@ -228,7 +228,7 @@ class Vector2 {
    * @param other The vector to calculate the squared distance to
    * @return The squared distance between this vector and (x, y)
    */
-  float distSq(Vector2& other) {
+  float distSq(const Vector2& other) const {
     float dx = this->x - other.x;
     float dy = this->y - other.y;
     return dx * dx + dy * dy;
@@ -264,18 +264,18 @@ class Vector2 {
    * values.
    * @returns If the x- and y-coordinates match
    */
-  bool equals(float x, float y) { return this->x == x && this->y == y; }
+  bool equals(float x, float y) const { return this->x == x && this->y == y; }
 
   /**
    * @brief Checks if the two vectors are identical
    * @returns If the two vectors are identical
    */
-  bool equals(Vector2& other) { return x == other.x && y == other.y; }
+  bool equals(Vector2& other) const { return x == other.x && y == other.y; }
 
   /**
    * @brief Overloads the `==` operator to check if the two vectors are
    * identical
    * @returns If the two vectors are identical
    */
-  bool operator==(Vector2& rhs) { return this->equals(rhs); }
+  bool operator==(Vector2& rhs) const { return this->equals(rhs); }
 };
