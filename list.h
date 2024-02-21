@@ -39,6 +39,20 @@ class List {
   }
 
   /**
+   * @brief Removes an element at a given index by swapping it with the last
+   * element.
+   *
+   * @param index The index of the element to remove.
+   */
+  void swapRemove(size_t index) {
+    if (index >= _length) return;
+
+    _data[index].~T();  // Call destructor for object at given index
+    _data[index] = _data[_length - 1];
+    _length--;
+  }
+
+  /**
    * @brief Clears the list of it's values. Note that it will keep it's previous
    * capacity.
    */
@@ -59,19 +73,8 @@ class List {
    */
   T* end() { return _data + _length; }
 
-  // T& operator const {
-  //   if (index >= _length) {
-  //     Serial.println(F("List index out of range"));
-  //     throw;
-  //   }
-
-  //   return _data[index];
-  // }
-
  private:
   T* _data;
   size_t _capacity;
   size_t _length;
-
-  size_t reserve(size_t size) {}
 };
