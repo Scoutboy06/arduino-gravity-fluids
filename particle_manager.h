@@ -17,14 +17,25 @@ class ParticleManager {
   void spawnParticle(float x, float y) {
     if (_particleCount >= NUM_PARTICLES) return;
 
-    Particle p = Particle(x, y, _particleCount);
-    particles[_particleCount] = p;
+    particles[_particleCount] = Particle(x, y, _particleCount);
     _particleCount++;
   }
 
-  void updateParticles(float timeStep) {}
+  void updateParticles(float timeStep) {
+    applyExternalForces(timeStep);
+    // applyViscosity(timeStep);
+    advanceParticles(timeStep);
+    // updateNeighbors();
+    // doubleDensityRelaxation(timeStep);
+    // resolveCollisions(timeStep);
+    // updateVelocity(timeStep);
+  }
 
-  void renderParticles() {}
+  void renderParticles(Adafruit_SSD1306& oled) {
+    for (Particle& p : particles) {
+      oled.fillCircle(p.pos.x, p.pos.y, PARTICLE_RADIUS, WHITE);
+    }
+  }
 
  private:
   size_t _particleCount = 0;
@@ -56,7 +67,7 @@ class ParticleManager {
    * grid, to allow faster neighbor search. Particles register their movement to
    * this component and the neighbor lists gets their data from this component
    */
-  Grid grid;
+  // Grid grid;
 
   /**
    * @brief A component that manages the Neighbor search algorithm ([Mån13],
@@ -71,8 +82,8 @@ class ParticleManager {
    * source of external force, `gravity`, which can be manipulated by the user.
    */
   void applyExternalForces(float timeStep) {
-    for (Particle p : particles) {
-      p.vel += gravity;
+    for (Particle& p : particles) {
+      p.vel += gravity * timeStep;
     }
   }
 
@@ -83,7 +94,7 @@ class ParticleManager {
    * @param timeStep The time between frames
    */
   void applyViscosity(float timeStep) {
-    for (Particle p : particles) {
+    for (Particle& p : particles) {
       for (Particle* n : neighborManager.getNeighborsOf(p)) {
         Vector2 v_pn = n->pos - p.pos;
         float vel_inward = (p.vel - n->vel) * v_pn;
@@ -110,15 +121,15 @@ class ParticleManager {
    * the code.
    */
   void advanceParticles(float timeStep) {
-    for (Particle p : particles) {
+    for (Particle& p : particles) {
       p.prevPos = p.pos.copy();
       p.pos += timeStep * p.vel;
-      grid.moveParticle(p);
+      // grid.moveParticle(p);
     }
   }
 
   void updateNeighbors() {
-    for (Particle p : particles) {
+    for (Particle& p : particles) {
       neighborManager.clear();
 
       for (Particle* n : grid.possibleNeighbors(p)) {
@@ -138,8 +149,8 @@ class ParticleManager {
    * in the current scope. I presume this is a bug, and I have thus moved the
    * line into the for loop (it was below before).
    */
-  void doubleDensityRelaxation() {
-    for (Particle par : particles) {
+  void doubleDensityRelaxation(float timeStep) {
+    for (Particle& par : particles) {
       float p = 0.0;
       float p_near = 0.0;
 
@@ -183,30 +194,34 @@ class ParticleManager {
    * on the closest edge.
    */
   void resolveCollisions(float timeStep) {
-    for (Particle p : particles) {
+    for (Particle& p : particles) {
       // Horizontal edge collisions
-      if (p.pos.x < collisionRadius ||
-          p.pos.x > SCREEN_WIDTH - collisionRadius) {
+      if (p.pos.x < PARTICLE_RADIUS ||
+          p.pos.x > SCREEN_WIDTH - PARTICLE_RADIUS) {
         // Reflect the particle's velocity and slightly move it away from the
         // edge
-        p.vel.x *= -1;
-        p.pos.x = p.pos.x < collisionRadius ? collisionRadius
-                                            : SCREEN_WIDTH - collisionRadius;
+        p.vel.x *= -1 * bounceFriction;
+        p.pos.x = p.pos.x < PARTICLE_RADIUS ? PARTICLE_RADIUS
+                                            : SCREEN_WIDTH - PARTICLE_RADIUS;
         p.pos.x -= collisionSoftness * p.vel.x * timeStep;
       }
 
       // Vertical edge collisions
-      if (p.pos.y < collisionRadius ||
-          p.pos.y > SCREEN_HEIGHT - collisionRadius) {
+      if (p.pos.y < PARTICLE_RADIUS ||
+          p.pos.y > SCREEN_HEIGHT - PARTICLE_RADIUS) {
         // Reflect the particle's velocity and slightly move it away from the
         // edge
-        p.vel.y *= -1;
-        p.pos.y = p.pos.y < collisionRadius ? collisionRadius
-                                            : SCREEN_HEIGHT - collisionRadius;
+        p.vel.y *= -1 * bounceFriction;
+        p.pos.y = p.pos.y < PARTICLE_RADIUS ? PARTICLE_RADIUS
+                                            : SCREEN_HEIGHT - PARTICLE_RADIUS;
         p.pos.y -= collisionSoftness * p.vel.y * timeStep;
       }
     }
   }
 
-  void updateVelocity(float timeStep) {}
+  void updateVelocity(float timeStep) {
+    for (Particle& p : particles) {
+      p.vel = (p.pos - p.prevPos) / timeStep;
+    }
+  }
 };

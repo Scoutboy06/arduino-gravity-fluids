@@ -1,6 +1,6 @@
 #pragma once
 
-#define DEFAULT_CAPACITY 4
+#define DEFAULT_CAPACITY 1
 
 template <typename T>
 class List {

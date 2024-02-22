@@ -65,6 +65,11 @@ void setup() {
     while (1)
       ;
   }
+
+  ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 - 10,
+                                               SCREEN_HEIGHT / 2);
+  ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 + 10,
+                                               SCREEN_HEIGHT / 2);
 }
 
 void loop() {
@@ -72,7 +77,7 @@ void loop() {
   oled.clearDisplay();
 
   ParticleManager::GetInstance().updateParticles(timeStep);
-  ParticleManager::GetInstance().renderParticles();
+  ParticleManager::GetInstance().renderParticles(oled);
 
   oled.display();
 }

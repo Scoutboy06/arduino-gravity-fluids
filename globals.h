@@ -3,6 +3,7 @@
 #include <Adafruit_ADXL345_U.h>
 #include <Adafruit_SSD1306.h>
 
+#include "particle_manager.h"
 #include "vec.h"
 
 // -------- OLED Screen -------- //
@@ -22,15 +23,17 @@ Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 
 // -------- Fluid simulation -------- //
 
-float timeStep = 1 / 60;
-#define NUM_PARTICLES 30
+// ParticleManager particleManager;
+
+float timeStep = 0.1;
+#define NUM_PARTICLES 2
 #define PARTICLE_RADIUS 3
 
 // Variables described in [Mån13], 3.1.3, List 3
 
 const float radius = 1.0;  // Maximum distance particles effect each other.
 const float collisionRadius =
-    1.0;                // The distance from a wall that counts as a collision.
+    PARTICLE_RADIUS;    // The distance from a wall that counts as a collision.
 const float p_0 = 1.0;  // Rest density
 const float sigma = 1.0;  // The viscosity's linear dependence on the velocity
 const float beta = 1.0;  // The viscosity's quadratic dependence on the velocity
@@ -41,3 +44,5 @@ Vector2 gravity;           // The global gravity acceleration
 // Variabled described in [Mån13], 3.1.3, below Algorithm 7
 float friction = 0.8;
 float collisionSoftness = 0.6;
+
+float bounceFriction = 0.1;
