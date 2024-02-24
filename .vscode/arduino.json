@@ -1,7 +1,7 @@
 {
     "board": "arduino:avr:uno",
     "programmer": "avrisp",
-    "port": "COM3",
+    "port": "COM4",
     "sketch": "arduino-gravity-fluids.ino",
     "output": "./build"
 }

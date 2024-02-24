@@ -2,8 +2,8 @@
 
 // #include "distance_field.h"
 #include "globals.h"
-#include "grid.h"
-#include "neighbor_manager.h"
+// #include "grid.h"
+// #include "neighbor_manager.h"
 #include "particle.h"
 #include "vec.h"
 
@@ -26,8 +26,8 @@ class ParticleManager {
     // applyViscosity(timeStep);
     advanceParticles(timeStep);
     // updateNeighbors();
-    // doubleDensityRelaxation(timeStep);
-    // resolveCollisions(timeStep);
+    doubleDensityRelaxation(timeStep);
+    resolveCollisions(timeStep);
     // updateVelocity(timeStep);
   }
 
@@ -73,7 +73,7 @@ class ParticleManager {
    * @brief A component that manages the Neighbor search algorithm ([Mån13],
    * ch. 3.2)
    */
-  NeighborManager neighborManager;
+  // NeighborManager neighborManager;
 
   /**
    * @brief Described in [Mån13], 3.1.3, Algorithm 2 - Applying external forces.
@@ -93,24 +93,25 @@ class ParticleManager {
    * is an impulse applied radially between neighboring particles.
    * @param timeStep The time between frames
    */
-  void applyViscosity(float timeStep) {
-    for (Particle& p : particles) {
-      for (Particle* n : neighborManager.getNeighborsOf(p)) {
-        Vector2 v_pn = n->pos - p.pos;
-        float vel_inward = (p.vel - n->vel) * v_pn;
+  // void applyViscosity(float timeStep) {
+  //   for (Particle& p : particles) {
+  //     for (Particle* n : neighborManager.getNeighborsOf(p)) {
+  //       Vector2 v_pn = n->pos - p.pos;
+  //       float vel_inward = (p.vel - n->vel) * v_pn;
 
-        if (vel_inward > 0) {
-          float length = v_pn.mag();
-          vel_inward /= length;
-          v_pn /= length;
-          float q = length / radius;
-          Vector2 I = 0.5 * timeStep * (1 - q) *
-                      (sigma * vel_inward + beta * pow(vel_inward, 2)) * v_pn;
-          p.vel -= I;
-        }
-      }
-    }
-  }
+  //       if (vel_inward > 0) {
+  //         float length = v_pn.mag();
+  //         vel_inward /= length;
+  //         v_pn /= length;
+  //         float q = length / radius;
+  //         Vector2 I = 0.5 * timeStep * (1 - q) *
+  //                     (sigma * vel_inward + beta * pow(vel_inward, 2)) *
+  //                     v_pn;
+  //         p.vel -= I;
+  //       }
+  //     }
+  //   }
+  // }
 
   /**
    * @brief Described in [Mån13], 3.1.3, Algorithm 4 - Advancing particles to
@@ -122,23 +123,22 @@ class ParticleManager {
    */
   void advanceParticles(float timeStep) {
     for (Particle& p : particles) {
-      p.prevPos = p.pos.copy();
       p.pos += timeStep * p.vel;
       // grid.moveParticle(p);
     }
   }
 
-  void updateNeighbors() {
-    for (Particle& p : particles) {
-      neighborManager.clear();
+  // void updateNeighbors() {
+  //   for (Particle& p : particles) {
+  //     neighborManager.clear();
 
-      for (Particle* n : grid.possibleNeighbors(p)) {
-        if ((p.pos - n->pos).magSq() < radius * radius) {
-          neighborManager.addNeighbor(p, n);
-        }
-      }
-    }
-  }
+  //     for (Particle* n : grid.possibleNeighbors(p)) {
+  //       if ((p.pos - n->pos).magSq() < radius * radius) {
+  //         neighborManager.addNeighbor(p, n);
+  //       }
+  //     }
+  //   }
+  // }
 
   /**
    * @brief Described in [Mån13], 3.1.3, Algorithm 6 - Double Density Relaxation
@@ -154,8 +154,11 @@ class ParticleManager {
       float p = 0.0;
       float p_near = 0.0;
 
-      for (Particle* n : neighborManager.getNeighborsOf(par)) {
-        float temp_n = (par.pos - n->pos).mag();
+      // for (Particle& n : neighborManager.getNeighborsOf(par)) {
+      for (Particle& n : particles) {
+        if (par.is(n)) continue;
+
+        float temp_n = (par.pos - n.pos).mag();
         float q = 1.0 - temp_n / radius;
         p = k * pow(q, 2);
         p_near += pow(q, 3);
@@ -165,13 +168,16 @@ class ParticleManager {
       float P_near = k_near * p_near;
       Vector2 delta;
 
-      for (Particle* n : neighborManager.getNeighborsOf(par)) {
-        float temp_n = (par.pos - n->pos).mag();
+      // for (Particle& n : neighborManager.getNeighborsOf(par)) {
+      for (Particle& n : particles) {
+        if (par.is(n)) continue;
+
+        float temp_n = (par.pos - n.pos).mag();
         float q = 1.0 - temp_n / radius;
-        Vector2 v_pn = (par.pos - n->pos) / temp_n;
+        Vector2 v_pn = (par.pos - n.pos) / temp_n;
         Vector2 D =
             0.5 * pow(timeStep, 2) * (P * q + P_near * pow(q, 2)) * v_pn;
-        n->pos += D;
+        n.pos += D;
         delta -= D;
         par.pos += D;  // NOTE: different from original
       }
@@ -200,10 +206,11 @@ class ParticleManager {
           p.pos.x > SCREEN_WIDTH - PARTICLE_RADIUS) {
         // Reflect the particle's velocity and slightly move it away from the
         // edge
-        p.vel.x *= -1 * bounceFriction;
+        p.vel.x *= -1;
         p.pos.x = p.pos.x < PARTICLE_RADIUS ? PARTICLE_RADIUS
                                             : SCREEN_WIDTH - PARTICLE_RADIUS;
         p.pos.x -= collisionSoftness * p.vel.x * timeStep;
+        p.vel.x *= bounceFriction;
       }
 
       // Vertical edge collisions
@@ -211,17 +218,18 @@ class ParticleManager {
           p.pos.y > SCREEN_HEIGHT - PARTICLE_RADIUS) {
         // Reflect the particle's velocity and slightly move it away from the
         // edge
-        p.vel.y *= -1 * bounceFriction;
+        p.vel.y *= -1;
         p.pos.y = p.pos.y < PARTICLE_RADIUS ? PARTICLE_RADIUS
                                             : SCREEN_HEIGHT - PARTICLE_RADIUS;
         p.pos.y -= collisionSoftness * p.vel.y * timeStep;
+        p.vel.x *= bounceFriction;
       }
     }
   }
 
-  void updateVelocity(float timeStep) {
-    for (Particle& p : particles) {
-      p.vel = (p.pos - p.prevPos) / timeStep;
-    }
-  }
+  // void updateVelocity(float timeStep) {
+  //   for (Particle& p : particles) {
+  //     p.vel = (p.pos - p.prevPos) / timeStep;
+  //   }
+  // }
 };

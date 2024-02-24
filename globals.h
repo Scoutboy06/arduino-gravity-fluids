@@ -31,7 +31,8 @@ float timeStep = 0.1;
 
 // Variables described in [Mån13], 3.1.3, List 3
 
-const float radius = 1.0;  // Maximum distance particles effect each other.
+const float radius =
+    PARTICLE_RADIUS;  // Maximum distance particles effect each other.
 const float collisionRadius =
     PARTICLE_RADIUS;    // The distance from a wall that counts as a collision.
 const float p_0 = 1.0;  // Rest density
@@ -43,6 +44,6 @@ Vector2 gravity;           // The global gravity acceleration
 
 // Variabled described in [Mån13], 3.1.3, below Algorithm 7
 float friction = 0.8;
-float collisionSoftness = 0.6;
+float collisionSoftness = 0.1;
 
 float bounceFriction = 0.1;

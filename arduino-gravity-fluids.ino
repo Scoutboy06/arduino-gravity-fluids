@@ -52,6 +52,7 @@ Resources:
 void setup() {
   Serial.begin(115200);
   Serial.println("Initializing...");
+  Serial.println(freeRam());
 
   // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
   if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
@@ -60,16 +61,21 @@ void setup() {
       ;
   }
 
+  Serial.println(freeRam());
+
   if (!accel.begin()) {
     Serial.println(F("ADXL345 allocation failed"));
     while (1)
       ;
   }
 
+  Serial.println(freeRam());
   ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 - 10,
                                                SCREEN_HEIGHT / 2);
+  Serial.println(freeRam());
   ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 + 10,
                                                SCREEN_HEIGHT / 2);
+  Serial.println(freeRam());
 }
 
 void loop() {
@@ -86,4 +92,10 @@ Vector2 readAccelerometer() {
   sensors_event_t event;
   accel.getEvent(&event);
   return Vector2(event.acceleration.x, -event.acceleration.y);
+}
+
+int freeRam() {
+  extern int __heap_start, *__brkval;
+  int v;
+  return (int)&v - (__brkval == 0 ? (int)&__heap_start : (int)__brkval);
 }
