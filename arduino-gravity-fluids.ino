@@ -71,14 +71,8 @@ void setup() {
 }
 
 void loop() {
-  // Serial.print(F("."));
-
   updateGravity();
-
   simulation.update(gravity);
-  // for (int i = 0; i < 10; i++) {
-  // }
-
   oled.draw(simulation.bitmap);
 }
 

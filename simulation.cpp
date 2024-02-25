@@ -41,11 +41,9 @@ void Simulation::update(Vector2& gravity) {
     dy = 0;
   }
 
-  int8_t dPos[] = {dx, dy};
-
-  Serial.println(F("-----"));
-  Serial.println("[" + String(gravity.x) + ", " + String(gravity.y) + "]");
-  Serial.println("[" + String(dx) + ", " + String(dy) + "]");
+  // Serial.println(F("-----"));
+  // Serial.println("[" + String(gravity.x) + ", " + String(gravity.y) + "]");
+  // Serial.println("[" + String(dx) + ", " + String(dy) + "]");
 
   for (int y = SCREEN_HEIGHT - 2; y > 0; y--) {
     for (int x = 0; x < SCREEN_WIDTH; x++) {
