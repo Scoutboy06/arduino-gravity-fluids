@@ -21,32 +21,31 @@
 |__/      |__/ \______/ |__/ \_______/|_______/
 
 
-A fluid simulation that responds to motion (gravity).
-
-Resources:
-
-  [Mån13] Daniel Månsson. Interactive 2D Particle-based Fluid Simulation for
-  Mobile Devices. Bachelor's Thesis, KTH, 2013
-
-  [GHJV95] Erich Gamma, Richard Helm, Ralph Johnsson, John Vlissides. Design
-  Patterns: Elements of Reusable Object-Oriented Software. Addison-Wesley, 1995.
+A fluid (falling sand) simulation that responds to motion (gravity).
 
 */
 
 #include <Adafruit_ADXL345_U.h>
-// #include <Adafruit_GFX.h>
-// #include <Adafruit_SSD1306.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
-#include "particle.h"
-#include "particle_manager.h"
-#include "ssd1306_128x64_i2c.h"
-#include "vec.h"
+#include "oled.h"
+#include "simulation.h"
 
-// -------- Global varialbes -------- //
+// -------- Oled -------- //
 
-#include "globals.h"
+Oled oled;
+
+// -------- Simulation -------- //
+
+Simulation simulation;
+
+// -------- Accelerometer -------- //
+
+#define ACC_SCL A3
+#define ACC_SDA A2
+
+Adafruit_ADXL345_Unified accel = Adafruit_ADXL345_Unified();
 
 // -------- Setup -------- //
 
@@ -63,42 +62,30 @@ void setup() {
       ;
   }
 
-  ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 - 10,
-                                               SCREEN_HEIGHT / 2);
-
-  ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 + 10,
-                                               SCREEN_HEIGHT / 2);
+  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
+  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 1);
+  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 2);
+  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 3);
+  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 4);
+  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 5);
 }
 
 void loop() {
-  gravity = readAccelerometer();
-  oled.clearDisplay();
+  oled.draw(simulation.bitmap);
+
+  // gravity = readAccelerometer();
 
   // ParticleManager::GetInstance().updateParticles(timeStep);
   // ParticleManager::GetInstance().renderParticles(oled);
 
-  // oled.drawCircle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, PARTICLE_RADIUS,
-  // WHITE);
-
-  for (int y = 0; y < SCREEN_HEIGHT; y++) {
-    for (int x = 0; x < SCREEN_WIDTH; x++) {
-      oled.drawPixel(x, y, WHITE);
-    }
-  }
-
-  // for (int i = 0; i < SCREEN_WIDTH; i++) {
-  //   oled.drawPixel(i, 0, WHITE);
-  // }
-
-  delay(1000);
   // oled.display();
 }
 
-Vector2 readAccelerometer() {
-  sensors_event_t event;
-  accel.getEvent(&event);
-  return Vector2(event.acceleration.x, -event.acceleration.y);
-}
+// Vector2 readAccelerometer() {
+//   sensors_event_t event;
+//   accel.getEvent(&event);
+//   return Vector2(event.acceleration.x, -event.acceleration.y);
+// }
 
 int freeRam() {
   extern int __heap_start, *__brkval;
