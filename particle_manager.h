@@ -31,9 +31,13 @@ class ParticleManager {
     // updateVelocity(timeStep);
   }
 
-  void renderParticles(Adafruit_SSD1306& oled) {
+  void renderParticles(ssd1306_128x64_i2c& oled) {
     for (Particle& p : particles) {
-      oled.fillCircle(p.pos.x, p.pos.y, PARTICLE_RADIUS, WHITE);
+      int8_t x = static_cast<int8_t>(p.pos.x);
+      int8_t y = static_cast<int8_t>(p.pos.y);
+
+      oled.drawCircle(static_cast<int8_t>(p.pos.x),
+                      static_cast<int8_t>(p.pos.y), PARTICLE_RADIUS, WHITE);
     }
   }
 

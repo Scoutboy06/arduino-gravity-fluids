@@ -34,13 +34,14 @@ Resources:
 */
 
 #include <Adafruit_ADXL345_U.h>
-#include <Adafruit_GFX.h>
-#include <Adafruit_SSD1306.h>
+// #include <Adafruit_GFX.h>
+// #include <Adafruit_SSD1306.h>
 #include <Adafruit_Sensor.h>
 #include <Wire.h>
 
 #include "particle.h"
 #include "particle_manager.h"
+#include "ssd1306_128x64_i2c.h"
 #include "vec.h"
 
 // -------- Global varialbes -------- //
@@ -54,14 +55,7 @@ void setup() {
   Serial.println("Initializing...");
   Serial.println(freeRam());
 
-  // SSD1306_SWITCHCAPVCC = generate display voltage from 3.3V internally
-  if (!oled.begin(SSD1306_SWITCHCAPVCC, 0x3C)) {
-    Serial.println(F("SSD1306 allocation failed"));
-    while (1)
-      ;
-  }
-
-  Serial.println(freeRam());
+  oled.init(SSD1306_CMD_SWITCHCAPVCC, 0x3C);
 
   if (!accel.begin()) {
     Serial.println(F("ADXL345 allocation failed"));
@@ -69,23 +63,35 @@ void setup() {
       ;
   }
 
-  Serial.println(freeRam());
   ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 - 10,
                                                SCREEN_HEIGHT / 2);
-  Serial.println(freeRam());
+
   ParticleManager::GetInstance().spawnParticle(SCREEN_WIDTH / 2 + 10,
                                                SCREEN_HEIGHT / 2);
-  Serial.println(freeRam());
 }
 
 void loop() {
   gravity = readAccelerometer();
   oled.clearDisplay();
 
-  ParticleManager::GetInstance().updateParticles(timeStep);
-  ParticleManager::GetInstance().renderParticles(oled);
+  // ParticleManager::GetInstance().updateParticles(timeStep);
+  // ParticleManager::GetInstance().renderParticles(oled);
 
-  oled.display();
+  // oled.drawCircle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2, PARTICLE_RADIUS,
+  // WHITE);
+
+  for (int y = 0; y < SCREEN_HEIGHT; y++) {
+    for (int x = 0; x < SCREEN_WIDTH; x++) {
+      oled.drawPixel(x, y, WHITE);
+    }
+  }
+
+  // for (int i = 0; i < SCREEN_WIDTH; i++) {
+  //   oled.drawPixel(i, 0, WHITE);
+  // }
+
+  delay(1000);
+  // oled.display();
 }
 
 Vector2 readAccelerometer() {

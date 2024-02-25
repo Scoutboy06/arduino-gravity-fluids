@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Adafruit_ADXL345_U.h>
-#include <Adafruit_SSD1306.h>
-
+// #include <Adafruit_SSD1306.h>
 #include "particle_manager.h"
+#include "ssd1306_128x64_i2c.h"
 #include "vec.h"
 
 // -------- OLED Screen -------- //
@@ -12,7 +12,8 @@
 #define SCREEN_HEIGHT 64
 #define OLED_RESET -1
 
-Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+// Adafruit_SSD1306 oled(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, -1);
+ssd1306_128x64_i2c oled;
 
 // -------- Accelerometer -------- //
 
