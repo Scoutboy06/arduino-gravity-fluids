@@ -5,6 +5,23 @@
 
 #include "globals.h"
 
+#define RIGHT \
+  { 1, 0 }
+#define TOP_RIGHT \
+  { 1, -1 }
+#define TOP \
+  { 0, -1 }
+#define TOP_LEFT \
+  { -1, -1 }
+#define LEFT \
+  { -1, 0 }
+#define BOTTOM_LEFT \
+  { -1, 1 }
+#define BOTTOM \
+  { 0, 1 }
+#define BOTTOM_RIGHT \
+  { 1, 1 }
+
 class Simulation {
  private:
  public:
@@ -100,5 +117,11 @@ class Simulation {
   };
 
   void spawnParticle(uint8_t x, uint8_t y);
-  void update();
+  void update(Vector2& gravity);
 };
+
+struct Coords {
+  int8_t arr[2][3];
+};
+
+Coords calculate(float angle);
