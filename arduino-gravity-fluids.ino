@@ -27,7 +27,6 @@ A fluid (falling sand) simulation that responds to motion (gravity).
 
 #include <Adafruit_ADXL345_U.h>
 #include <Adafruit_Sensor.h>
-#include <Wire.h>
 
 #include "oled.h"
 #include "simulation.h"
@@ -62,16 +61,20 @@ void setup() {
       ;
   }
 
-  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2);
-  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 1);
-  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 2);
-  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 3);
-  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 4);
-  simulation.spawnParticle(SCREEN_WIDTH / 2, SCREEN_HEIGHT / 2 - 5);
+  for (int y = 0; y < 30; y++) {
+    for (int x = SCREEN_WIDTH / 2 - 15; x < SCREEN_WIDTH / 2 + 15; x++) {
+      simulation.spawnParticle(x, y);
+    }
+  }
 }
 
 void loop() {
+  for (int i = 0; i < 10; i++) {
+    simulation.update();
+  }
+
   oled.draw(simulation.bitmap);
+  Serial.print(F("."));
 
   // gravity = readAccelerometer();
 
