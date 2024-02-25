@@ -119,9 +119,3 @@ class Simulation {
   void spawnParticle(uint8_t x, uint8_t y);
   void update(Vector2& gravity);
 };
-
-struct Coords {
-  int8_t arr[2][3];
-};
-
-Coords calculate(float angle);
